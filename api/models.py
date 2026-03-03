@@ -11,7 +11,7 @@ class Package(models.Model):
 
     # Cesty k souborům (relativní k MEDIA_ROOT)
     # FileField v Djangu automaticky zvládá generování URL
-    archive_file = models.FileField(upload_to='packages/archives/', verbose_name="ZIP Archiv")
+    archive_file = models.FileField(upload_to='archives/', verbose_name="ZIP Archiv")
 
     # Metadata z manifestu uložená přímo v DB pro rychlý přístup
     # Vyžaduje PostgreSQL nebo novější SQLite
