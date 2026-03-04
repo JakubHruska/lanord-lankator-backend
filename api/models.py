@@ -35,7 +35,7 @@ class Package(models.Model):
     manifest_data = models.JSONField(default=dict, blank=True, verbose_name="Data z manifestu")
 
     # Statistika a info pro klienta
-    file_size = models.BigIntegerField(default=0, help_text="Velikost v bajtech")
+    file_size = models.BigIntegerField(default=0, help_text="Velikost v bajtech — vyplňuje se automaticky z nahraného souboru.")
     is_published = models.BooleanField(default=False, verbose_name="Publikováno")
 
     # Časové značky
