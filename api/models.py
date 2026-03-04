@@ -1,11 +1,28 @@
 from django.db import models
-import os
 
 
 class Package(models.Model):
+    class Type(models.TextChoices):
+        INSTALLER = 'installer', 'Instalátor'
+        READY_TO_PLAY = 'ready_to_play', 'Ready to Play'
+        PATCH = 'patch', 'Patch / Fix'
+        OTHER = 'other', 'Ostatní'
+
+    PACKAGE_TYPE_CHOICES = (
+        (Type.INSTALLER, Type.INSTALLER.label),
+        (Type.READY_TO_PLAY, Type.READY_TO_PLAY.label),
+        (Type.PATCH, Type.PATCH.label),
+        (Type.OTHER, Type.OTHER.label),
+    )
+
     # Základní metadata
     title = models.CharField(max_length=255, verbose_name="Název balíčku")
-    version = models.CharField(max_length=50, verbose_name="Verze")
+    type = models.CharField(
+        max_length=20,
+        choices=PACKAGE_TYPE_CHOICES,
+        default=Type.INSTALLER,
+        verbose_name="Typ balíčku",
+    )
     slug = models.SlugField(unique=True, help_text="Unikátní identifikátor (např. nazev-app-v1)")
     description = models.TextField(blank=True, verbose_name="Popis balíčku")
 
@@ -31,7 +48,7 @@ class Package(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.title} ({self.version})"
+        return f"{self.title} ({self.get_type_display()})"
 
     def save(self, *args, **kwargs):
         # Tady můžeme v budoucnu přidat automatický výpočet velikosti souboru
