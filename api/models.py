@@ -1,4 +1,24 @@
+import json
+import os
+import filetype
+
 from django.db import models
+from django.core.exceptions import ValidationError
+
+
+def validate_is_zip(file):
+    chunk = file.read(2048)
+    file.seek(0)  # Vrátit kurzor zpět
+    kind = filetype.guess(chunk)
+    if kind is None or kind.mime not in ['application/zip', 'application/x-zip-compressed']:
+        mime = kind.mime if kind else 'neznámý'
+        raise ValidationError(f'Soubor není validní ZIP. Zjištěn typ: {mime}')
+
+
+def get_upload_path(instance, filename):
+    # instance je tvůj objekt Package, filename je původní název souboru
+    # Výsledek: media/archives/counter-strike/soubor.zip
+    return os.path.join('archives', instance.slug, filename)
 
 
 class Package(models.Model):
@@ -26,16 +46,20 @@ class Package(models.Model):
     slug = models.SlugField(unique=True, help_text="Unikátní identifikátor (např. nazev-app-v1)")
     description = models.TextField(blank=True, verbose_name="Popis balíčku")
 
-    # Cesty k souborům (relativní k MEDIA_ROOT)
-    # FileField v Djangu automaticky zvládá generování URL
-    archive_file = models.FileField(upload_to='archives/', verbose_name="ZIP Archiv")
+    # Cesty k souborům
+    archive_file = models.FileField(
+        upload_to=get_upload_path,
+        verbose_name="ZIP Archiv",
+        validators=[validate_is_zip]
+    )
 
     # Metadata z manifestu uložená přímo v DB pro rychlý přístup
     # Vyžaduje PostgreSQL nebo novější SQLite
     manifest_data = models.JSONField(default=dict, blank=True, verbose_name="Data z manifestu")
 
     # Statistika a info pro klienta
-    file_size = models.BigIntegerField(default=0, help_text="Velikost v bajtech — vyplňuje se automaticky z nahraného souboru.")
+    file_size = models.BigIntegerField(default=0,
+                                       help_text="Velikost v bajtech — vyplňuje se automaticky z nahraného souboru.")
     is_published = models.BooleanField(default=False, verbose_name="Publikováno")
 
     # Časové značky
@@ -58,3 +82,24 @@ class Package(models.Model):
             except:
                 pass
         super().save(*args, **kwargs)
+
+        # Cesta k uloženému souboru
+        if self.archive_file:
+            file_path = self.archive_file.path
+            directory = os.path.dirname(file_path)
+            manifest_path = os.path.join(directory, 'manifest.json')
+
+            # Data pro manifest
+            manifest_data = {
+                "slug": self.slug,
+                "type": self.type,
+                "title": self.title,
+                "description": self.description,
+                "file_size": self.file_size,
+                "archive_file": os.path.basename(self.archive_file.name),
+                "created_at": self.created_at.isoformat() if hasattr(self, 'created_at') else None
+            }
+
+            # Zápis do souboru
+            with open(manifest_path, 'w', encoding='utf-8') as f:
+                json.dump(manifest_data, f, indent=4, ensure_ascii=False)

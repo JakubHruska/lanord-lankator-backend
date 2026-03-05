@@ -20,5 +20,6 @@ class PackageAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'is_published', 'created_at')
     list_filter = ('type', 'is_published')
     prepopulated_fields = {'slug': ('title',)}
-    readonly_fields = ('file_size',)
-    fields = ('title', 'type', 'slug', 'description', 'archive_file', 'file_size', 'manifest_data', 'is_published')
+    readonly_fields = ('file_size', 'manifest_data', 'created_at', 'updated_at')
+    fields = ('title', 'type', 'slug', 'description', 'archive_file', 'file_size', 'manifest_data', 'created_at',
+              'updated_at', 'is_published')

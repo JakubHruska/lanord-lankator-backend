@@ -5,5 +5,5 @@ from .models import Package
 class PackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
-        fields = ['id', 'title', 'type', 'slug', 'description', 'archive_file', 'file_size', 'manifest_data']
-
+        fields = ['id', 'title', 'type', 'slug', 'description', 'archive_file', 'file_size', 'created_at',
+                  'manifest_data']

@@ -9,10 +9,13 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 from django.template.context_processors import media
+
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-82kdsh417d172y)z)8g21sv-+4dx!z1@!(ftw=la)id@q^i*sk'
+SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-default-key-dev-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = []
 
@@ -119,7 +122,7 @@ STATIC_URL = 'static/'
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'packages/'
+MEDIA_ROOT = os.getenv('MEDIA_PATH', BASE_DIR / 'packages/')
 
 # CORS HEADERS
 if DEBUG:
