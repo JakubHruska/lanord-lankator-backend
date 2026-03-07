@@ -75,12 +75,13 @@ class Package(models.Model):
         return f"{self.title} ({self.get_type_display()})"
 
     def save(self, *args, **kwargs):
-        # Tady můžeme v budoucnu přidat automatický výpočet velikosti souboru
-        if self.archive_file and not self.file_size:
+        # Aktualizovat velikost souboru pokud existuje (zajistí správný údaj v manifestu)
+        if self.archive_file:
             try:
                 self.file_size = self.archive_file.size
-            except:
+            except Exception:
                 pass
+
         super().save(*args, **kwargs)
 
         # Cesta k uloženému souboru
@@ -103,3 +104,11 @@ class Package(models.Model):
             # Zápis do souboru
             with open(manifest_path, 'w', encoding='utf-8') as f:
                 json.dump(manifest_data, f, indent=4, ensure_ascii=False)
+
+            # Uložit manifest_data také do DB (použijeme update přes queryset, aby se předešlo rekurzivnímu volání save)
+            self.manifest_data = manifest_data
+            try:
+                type(self).objects.filter(pk=self.pk).update(manifest_data=manifest_data)
+            except Exception:
+                # pokud update selže, nic dalšího neděláme (možno přidat logging)
+                pass

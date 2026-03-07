@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
-from django.template.context_processors import media
+# from django.template.context_processors import media
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -29,7 +29,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-default-key-dev-only')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+_allowed = os.getenv('ALLOWED_HOSTS', '*,localhost,127.0.0.1')
+ALLOWED_HOSTS = [h.strip() for h in _allowed.split(',') if h.strip()]
 
 # Application definition
 
@@ -118,12 +119,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = 'static/'
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.getenv('MEDIA_PATH', BASE_DIR / 'packages/')
+MEDIA_ROOT = Path(os.getenv('MEDIA_PATH', str(BASE_DIR / 'packages')))
 
 # CORS HEADERS
+# V produkci nastav v .env: CORS_ALLOWED_ORIGINS=http://10.0.20.240
+_cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', '')
 if DEBUG:
     CORS_ORIGIN_ALLOW_ALL = True
+elif _cors_origins:
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(',') if o.strip()]
+else:
+    CORS_ORIGIN_ALLOW_ALL = False

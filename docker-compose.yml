@@ -1,0 +1,42 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Samba – balíčky her (host /mnt/samba_games/_packages → kontejner /app/media)
+      - /mnt/samba_games/_packages:/app/media:ro
+      # Statické soubory sdílené s Nginx
+      - staticfiles:/app/staticfiles
+      # Persistentní SQLite databáze
+      - ./db.sqlite3:/app/db.sqlite3
+    networks:
+      - lanord_net
+    expose:
+      - "8000"
+    depends_on: []
+
+  nginx:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - staticfiles:/var/www/static:ro
+      # Nginx obsluhuje media přímo ze Samby (bind mount přes web service není nutný,
+      # sdílíme stejnou cestu přes named volume nebo přímý bind)
+      - /mnt/samba_games/_packages:/var/www/media:ro
+    depends_on:
+      - web
+    networks:
+      - lanord_net
+
+volumes:
+  staticfiles:
+
+networks:
+  lanord_net:
+    driver: bridge
+
