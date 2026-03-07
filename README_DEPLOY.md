@@ -147,4 +147,3 @@ docker compose exec web python manage.py migrate --noinput
 docker compose logs web
 # Zkontroluj SECRET_KEY a ALLOWED_HOSTS v .env
 ```
-

@@ -39,4 +39,3 @@ volumes:
 networks:
   lanord_net:
     driver: bridge
-

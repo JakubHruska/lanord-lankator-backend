@@ -14,4 +14,3 @@ exec gunicorn package_server.wsgi:application \
   --log-level info \
   --access-logfile - \
   --error-logfile -
-
