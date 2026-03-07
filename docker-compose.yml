@@ -4,9 +4,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    user: "1000:1000"   # ← přidej toto, uid/gid musí mít právo psát do /mnt/samba_games/_packages
     volumes:
       # Samba – balíčky her (host /mnt/samba_games/_packages → kontejner /app/media)
-      - /mnt/samba_games/_packages:/app/media:ro
+      - /mnt/samba_games/_packages:/app/media
       # Statické soubory sdílené s Nginx
       - staticfiles:/app/staticfiles
       # Persistentní SQLite databáze

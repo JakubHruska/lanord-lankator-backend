@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -18,9 +18,19 @@ RUN pip install --upgrade pip \
 # Zkopírování projektu
 COPY . /app/
 
-# Entrypoint
+# Entrypoint (jako root – chmod potřebuje root)
 COPY deploy/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Nastav vlastníka /app na uid 1000, pak přepni uživatele
+RUN chown -R 1000:1000 /app
+
+# Vytvoř staticfiles adresář se správným vlastníkem
+RUN mkdir -p /app/staticfiles && chown -R 1000:1000 /app/staticfiles
+
+RUN chown -R 1000:1000 /app
+
+USER 1000:1000
 
 EXPOSE 8000
 
