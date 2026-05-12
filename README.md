@@ -39,9 +39,9 @@ V kořenové složce projektu (tam kde je `manage.py`) vytvořte nový soubor s 
 # .env
 DEBUG=True
 SECRET_KEY=tvuj-libovolny-tajny-klic-pro-lokalni-vyvoj
-ALLOWED_HOSTS=localhost,127.0.0.1
 MEDIA_PATH=media
-CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+CORS_ALLOWED_ORIGINS=http://localhost:1420,http://127.0.0.1:1420,http://localhost:8000,tauri://localhost,http://tauri.localhost,https://tauri.localhost
+ALLOWED_HOSTS=localhost,127.0.0.1,[::1]
 ```
 *Pozn.: Pro lokální vývoj můžete nechat klíč vymyšlený a `DEBUG=True`. Do složky zvolené v `MEDIA_PATH` se začnou tvořit a spravovat archivy.*
 
