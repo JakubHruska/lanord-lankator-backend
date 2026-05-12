@@ -1,0 +1,11 @@
+*.pyc
+__pycache__/
+.idea/
+*.sqlite3
+.env
+!.env.example
+.venv/
+venv/
+/packages/
+/staticfiles/
+/staryenv
